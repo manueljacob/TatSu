@@ -309,3 +309,18 @@ class LeftRecursionTests(unittest.TestCase):
 
         ast = model.parse('foo, bar', trace=trace, colorize=True)
         self.assertEqual(['foo', ',', 'bar'], ast)
+
+    def test_issue34(self, trace=False):
+        grammar = '''
+            @@left_recursion :: True
+            identifier = /\w+/ ;
+            expr = mul | identifier ;
+            mul = expr '*' identifier ;
+        '''
+        model = compile(grammar)
+
+        ast = model.parse('a * b', start='expr', trace=trace, colorize=True)
+        self.assertEqual(['a', '*', 'b'], ast)
+
+        ast = model.parse('a * b', start='mul', trace=trace, colorize=True)
+        self.assertEqual(['a', '*', 'b'], ast)
